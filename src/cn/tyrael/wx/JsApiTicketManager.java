@@ -13,13 +13,25 @@ import okhttp3.Response;
 public class JsApiTicketManager {
 	private static final String TAG = "JsApiTicketManager";
 	private static final long TIME_AHEAD = 10 * 60 * 1000;
+	private static final TokenManager sTokenManager = TokenManager.getInstance();
+	private static final JsApiTicketManager sTicketManager = new JsApiTicketManager();
+	
 		
-	private JsApiTicketResponse tokenResponse;
+	private JsApiTicketResponse ticketResponse;
 	private long timeRefresh;
 	
+	public static JsApiTicketManager getInstance(){
+		return sTicketManager;
+	}
+	
+	private JsApiTicketManager(){
+		requestToken(); 
+	}
+	
 	public void requestToken(){
-		String token = null;
-		String url = String.format(WxUrl.JS_TICKET, WxConstant.APP_ID);
+		LogAdapter.d(TAG,  "requestToken");
+		String token = sTokenManager.getToken();
+		String url = String.format(WxUrl.JS_TICKET, token);
 		long now = System.currentTimeMillis();
 		Response r = HttpDefault.get(url);
 		String s = null;
@@ -30,12 +42,12 @@ public class JsApiTicketManager {
 			e.printStackTrace();
 		}
 		LogAdapter.d(TAG, s);
-		TokenResponse t = new Gson().fromJson(s, TokenResponse.class);
-//		tokenResponse = t;
-//		timeRefresh = now + t.expires_in * 1000 - TIME_AHEAD;
+		JsApiTicketResponse t = new Gson().fromJson(s, JsApiTicketResponse.class);
+		ticketResponse = t;
+		timeRefresh = now + t.expires_in * 1000 - TIME_AHEAD;
 	}
 	
-//	public String getToken(){
-//		return tokenResponse.access_token;
-//	}
+	public String getTicket(){
+		return ticketResponse.ticket;
+	}
 }

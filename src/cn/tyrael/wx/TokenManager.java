@@ -19,11 +19,16 @@ public class TokenManager {
 	private long timeRefresh;
 	private int status;
 	
+	public static TokenManager getInstance(){
+		return token;
+	}
+	
 	private TokenManager(){
 		requestToken();
 	}
 	
 	public void requestToken(){
+		LogAdapter.d(TAG, "requestToken");
 		String url = String.format(WxUrl.TOKEN, WxConstant.APP_ID, WxConstant.APP_SECRET);
 		long now = System.currentTimeMillis();
 		Response r = HttpDefault.get(url);
@@ -41,6 +46,7 @@ public class TokenManager {
 	}
 	
 	public String getToken(){
+		LogAdapter.d(TAG,  "getToken");
 		return tokenResponse.access_token;
 	}
 }
