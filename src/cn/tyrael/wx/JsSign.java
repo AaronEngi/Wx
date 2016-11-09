@@ -1,14 +1,22 @@
 package cn.tyrael.wx;
 
+import cn.tyrael.data.wx.net.JsConfig;
 import cn.tyrael.library.cipher.MDUtil;
 
 public class JsSign {
 	private static final String FORMAT = "jsapi_ticket=%s&noncestr=%s&timestamp=%s&url=%s";
 	
-	public  final String noncestr;
+	public  final String noncestr ;
 	public  final long timestamp;
 	public  final String ticket;
 	public  final String url;
+	
+	public JsSign(String ticket){
+		noncestr = "";
+		timestamp = System.currentTimeMillis();
+		this.ticket = ticket;
+		url = "";
+	}
 	
 	public JsSign(String noncestr, long timestamp, String ticket, String url) {
 		super();
@@ -24,5 +32,23 @@ public class JsSign {
 	public String sign(){
 		String s = String.format(FORMAT, ticket, noncestr, timestamp, url);
 		return MDUtil.SHA1(s);
+	}
+	
+	public String sign(String url){
+		String s = String.format(FORMAT, ticket, noncestr, timestamp, url);
+		return MDUtil.SHA1(s);
+	}
+	
+	public JsConfig signForConfig(String url){
+		if(url.contains("#")){
+			int index = url.indexOf("#");
+			url = url.substring(0, index);
+		}
+		JsConfig c = new JsConfig();
+		c.appId = WxConstant.APP_ID;
+		c.nonceStr = this.noncestr;
+		c.signature = sign(url);
+		c.timestamp = timestamp;
+		return c;
 	}
 }
